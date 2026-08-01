@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
 import { getSettings } from '@/services/settingsService';
 import { AppShell } from '@/app/AppShell';
@@ -16,6 +17,14 @@ import { SettingsPage } from '@/features/settings/SettingsPage';
 function App() {
   useEffect(() => {
     void getSettings();
+
+    function handleRejection(event: PromiseRejectionEvent) {
+      console.error('Unhandled error:', event.reason);
+      toast.error('Something went wrong saving your changes. Please try again.');
+    }
+
+    window.addEventListener('unhandledrejection', handleRejection);
+    return () => window.removeEventListener('unhandledrejection', handleRejection);
   }, []);
 
   return (

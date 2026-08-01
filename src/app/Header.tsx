@@ -7,7 +7,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@/components/ui/input-group';
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useUiStore } from '@/store/uiStore';
 import { Sidebar } from './Sidebar';
 import { NAV_ITEMS } from './nav';
@@ -31,6 +31,9 @@ export function Header() {
       <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
         <SheetContent side="left" className="w-64 p-0 md:hidden">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <SheetDescription className="sr-only">
+            Primary navigation links for Curo
+          </SheetDescription>
           <Sidebar onNavigate={() => setMobileNavOpen(false)} />
         </SheetContent>
       </Sheet>
