@@ -1,18 +1,57 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
 import { getSettings } from '@/services/settingsService';
 import { AppShell } from '@/app/AppShell';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
-import { DashboardPage } from '@/features/dashboard/DashboardPage';
-import { BookmarksPage } from '@/features/bookmarks/BookmarksPage';
-import { DuplicatesPage } from '@/features/duplicates/DuplicatesPage';
-import { CollectionsPage } from '@/features/collections/CollectionsPage';
-import { AnalyticsPage } from '@/features/analytics/AnalyticsPage';
-import { ImportPage } from '@/features/import/ImportPage';
-import { ExportPage } from '@/features/export/ExportPage';
-import { SettingsPage } from '@/features/settings/SettingsPage';
+
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard/DashboardPage').then((m) => ({
+    default: m.DashboardPage,
+  })),
+);
+const BookmarksPage = lazy(() =>
+  import('@/features/bookmarks/BookmarksPage').then((m) => ({
+    default: m.BookmarksPage,
+  })),
+);
+const DuplicatesPage = lazy(() =>
+  import('@/features/duplicates/DuplicatesPage').then((m) => ({
+    default: m.DuplicatesPage,
+  })),
+);
+const CollectionsPage = lazy(() =>
+  import('@/features/collections/CollectionsPage').then((m) => ({
+    default: m.CollectionsPage,
+  })),
+);
+const AnalyticsPage = lazy(() =>
+  import('@/features/analytics/AnalyticsPage').then((m) => ({
+    default: m.AnalyticsPage,
+  })),
+);
+const ImportPage = lazy(() =>
+  import('@/features/import/ImportPage').then((m) => ({ default: m.ImportPage })),
+);
+const ExportPage = lazy(() =>
+  import('@/features/export/ExportPage').then((m) => ({ default: m.ExportPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+
+function RouteFallback() {
+  return (
+    <div className="flex justify-center py-24">
+      <Loader2
+        className="text-muted-foreground size-6 animate-spin"
+        aria-label="Loading"
+      />
+    </div>
+  );
+}
 
 function App() {
   useEffect(() => {
@@ -30,18 +69,20 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="bookmarks" element={<BookmarksPage />} />
-            <Route path="duplicates" element={<DuplicatesPage />} />
-            <Route path="collections" element={<CollectionsPage />} />
-            <Route path="analytics" element={<AnalyticsPage />} />
-            <Route path="import" element={<ImportPage />} />
-            <Route path="export" element={<ExportPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="bookmarks" element={<BookmarksPage />} />
+              <Route path="duplicates" element={<DuplicatesPage />} />
+              <Route path="collections" element={<CollectionsPage />} />
+              <Route path="analytics" element={<AnalyticsPage />} />
+              <Route path="import" element={<ImportPage />} />
+              <Route path="export" element={<ExportPage />} />
+              <Route path="settings" element={<SettingsPage />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </BrowserRouter>
       <Toaster />
     </ErrorBoundary>
