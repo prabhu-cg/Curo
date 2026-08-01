@@ -53,6 +53,7 @@ export function Header() {
             <Search className="size-4" aria-hidden="true" />
           </InputGroupAddon>
           <InputGroupInput
+            id="global-search"
             type="search"
             placeholder="Search bookmarks…"
             aria-label="Search bookmarks"

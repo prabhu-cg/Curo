@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom';
+import { useGlobalShortcuts } from '@/hooks';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 
 export function AppShell() {
+  useGlobalShortcuts();
+
   return (
     <div className="grid min-h-svh grid-cols-1 md:grid-cols-[240px_1fr]">
       <a

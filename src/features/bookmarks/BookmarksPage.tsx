@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { useBookmarks, useBookmarkSearch, useCollections } from '@/hooks';
+import { useBookmarks, useBookmarkSearch, useCollections, useSettings } from '@/hooks';
 import { useUiStore } from '@/store/uiStore';
 import { getBookmarksForCollection } from '@/services/collectionService';
 import { deleteBookmark, toggleFavorite } from '@/services/bookmarkService';
@@ -41,12 +41,18 @@ import { BulkActionsBar } from './BulkActionsBar';
 import { BookmarkFormDialog } from './BookmarkFormDialog';
 import type { Bookmark } from '@/types';
 
-const ROW_HEIGHT = 60;
+const ROW_HEIGHT_COMFORTABLE = 60;
+const ROW_HEIGHT_COMPACT = 44;
 const ALL_VALUE = '__all__';
 
 export function BookmarksPage() {
   const { bookmarks, isLoading } = useBookmarks();
   const { collections, customCollections } = useCollections(bookmarks);
+  const { settings } = useSettings();
+  const rowHeight =
+    settings.appearance.density === 'compact'
+      ? ROW_HEIGHT_COMPACT
+      : ROW_HEIGHT_COMFORTABLE;
   const searchQuery = useUiStore((s) => s.searchQuery);
   const searchResults = useBookmarkSearch(bookmarks, collections, searchQuery);
 
@@ -139,7 +145,7 @@ export function BookmarksPage() {
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW_HEIGHT,
+    estimateSize: () => rowHeight,
     overscan: 12,
   });
 
