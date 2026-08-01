@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Bookmark as BookmarkIcon, Plus, SearchX } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -50,9 +50,28 @@ export function BookmarksPage() {
   const searchQuery = useUiStore((s) => s.searchQuery);
   const searchResults = useBookmarkSearch(bookmarks, collections, searchQuery);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [domainFilter, setDomainFilter] = useState(ALL_VALUE);
   const [tagFilter, setTagFilter] = useState(ALL_VALUE);
-  const [collectionFilter, setCollectionFilter] = useState(ALL_VALUE);
+  const [collectionFilter, setCollectionFilterState] = useState(
+    searchParams.get('collection') ?? ALL_VALUE,
+  );
+  const setCollectionFilter = (value: string) => {
+    setCollectionFilterState(value);
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value === ALL_VALUE) {
+          next.delete('collection');
+        } else {
+          next.set('collection', value);
+        }
+        return next;
+      },
+      { replace: true },
+    );
+  };
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'dateAdded', desc: true }]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
