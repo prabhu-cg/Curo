@@ -1,5 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Link } from 'react-router-dom';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import type { HealthScoreBreakdown } from '@/types';
 
 function scoreLabel(score: number): string {
@@ -14,6 +22,11 @@ export function HealthScoreCard({ health }: { health: HealthScoreBreakdown }) {
     <Card>
       <CardHeader>
         <CardTitle className="text-sm">Knowledge Health Score</CardTitle>
+        <CardAction>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/health">View full report</Link>
+          </Button>
+        </CardAction>
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="flex items-baseline gap-2">

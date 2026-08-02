@@ -6,3 +6,6 @@ export * from './useAnalytics';
 export * from './useHealthScore';
 export * from './useBookmarkSearch';
 export * from './useGlobalShortcuts';
+export * from './useFolders';
+export * from './useCleanupReport';
+export * from './useHealthInsights';

@@ -1,7 +1,9 @@
 import {
   LayoutDashboard,
+  HeartPulse,
   Bookmark,
   Copy,
+  Sparkles,
   FolderKanban,
   BarChart3,
   Upload,
@@ -19,8 +21,10 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/health', label: 'Health', icon: HeartPulse },
   { to: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
   { to: '/duplicates', label: 'Duplicates', icon: Copy },
+  { to: '/cleanup', label: 'Cleanup', icon: Sparkles },
   { to: '/collections', label: 'Collections', icon: FolderKanban },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
   { to: '/import', label: 'Import', icon: Upload },

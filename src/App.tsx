@@ -12,6 +12,14 @@ const DashboardPage = lazy(() =>
     default: m.DashboardPage,
   })),
 );
+const HealthCenterPage = lazy(() =>
+  import('@/features/health/HealthCenterPage').then((m) => ({
+    default: m.HealthCenterPage,
+  })),
+);
+const CleanupPage = lazy(() =>
+  import('@/features/cleanup/CleanupPage').then((m) => ({ default: m.CleanupPage })),
+);
 const BookmarksPage = lazy(() =>
   import('@/features/bookmarks/BookmarksPage').then((m) => ({
     default: m.BookmarksPage,
@@ -73,8 +81,10 @@ function App() {
           <Routes>
             <Route element={<AppShell />}>
               <Route index element={<DashboardPage />} />
+              <Route path="health" element={<HealthCenterPage />} />
               <Route path="bookmarks" element={<BookmarksPage />} />
               <Route path="duplicates" element={<DuplicatesPage />} />
+              <Route path="cleanup" element={<CleanupPage />} />
               <Route path="collections" element={<CollectionsPage />} />
               <Route path="analytics" element={<AnalyticsPage />} />
               <Route path="import" element={<ImportPage />} />

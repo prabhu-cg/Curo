@@ -3,6 +3,8 @@ export * from './urlNormalizer';
 export * from './importService';
 export * from './bookmarkService';
 export * from './dedupeService';
+export * from './folderService';
+export * from './cleanupService';
 export * from './searchService';
 export * from './collectionService';
 export * from './analyticsService';

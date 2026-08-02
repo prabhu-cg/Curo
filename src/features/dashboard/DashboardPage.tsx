@@ -17,6 +17,7 @@ import {
   useCollections,
   useDuplicates,
   useHealthScore,
+  useSettings,
 } from '@/hooks';
 import { GrowthChart } from '@/features/analytics/charts/GrowthChart';
 import { StatTile } from './StatTile';
@@ -25,8 +26,9 @@ import { HealthScoreCard } from './HealthScoreCard';
 export function DashboardPage() {
   const { bookmarks, isLoading } = useBookmarks();
   const { collections, customCollections } = useCollections(bookmarks);
+  const { settings } = useSettings();
   const snapshot = useAnalyticsSnapshot(bookmarks, collections);
-  const health = useHealthScore(bookmarks);
+  const health = useHealthScore(bookmarks, settings.healthScoreWeights);
   const duplicateGroups = useDuplicates(bookmarks);
 
   if (!isLoading && bookmarks.length === 0) {
