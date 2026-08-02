@@ -254,8 +254,8 @@ export function BookmarksPage() {
           description="Try a different search term or clear your filters."
         />
       ) : (
-        <div className="flex-1 overflow-hidden rounded-lg border">
-          <div className="bg-muted/50 flex border-b text-xs font-medium text-[#555555]">
+        <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-lg border">
+          <div className="bg-muted/50 flex shrink-0 border-b text-xs font-medium text-[#555555]">
             {table.getHeaderGroups()[0]?.headers.map((header) => {
               const label = (
                 <>
@@ -263,18 +263,18 @@ export function BookmarksPage() {
                   {{ asc: ' ↑', desc: ' ↓' }[header.column.getIsSorted() as string] ?? ''}
                 </>
               );
-              const widthStyle = header.getSize() === 150 ? undefined : header.getSize();
-              const flexClass =
-                header.column.id === 'title' || header.column.id === 'tags'
-                  ? 'flex-1'
-                  : '';
+              const isFlexColumn = header.column.id === 'title' || header.column.id === 'tags';
+              const widthStyle = isFlexColumn ? undefined : header.getSize();
+              const sizingClass = isFlexColumn ? 'min-w-0 flex-1' : 'shrink-0';
+              const alignClass =
+                header.column.id === 'actions' ? 'justify-center px-2' : 'px-3';
 
               return (
                 <div
                   key={header.id}
                   role="columnheader"
                   style={{ width: widthStyle }}
-                  className={`flex items-center px-3 py-2 ${flexClass}`}
+                  className={`flex items-center py-2 ${sizingClass} ${alignClass}`}
                 >
                   {header.column.getCanSort() ? (
                     <button
@@ -292,7 +292,7 @@ export function BookmarksPage() {
             })}
           </div>
 
-          <div ref={scrollRef} className="h-[600px] overflow-auto">
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
             <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
               {virtualizer.getVirtualItems().map((virtualRow) => {
                 const row = rows[virtualRow.index];
@@ -308,25 +308,24 @@ export function BookmarksPage() {
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                   >
-                    {row.getVisibleCells().map((cell) => (
-                      <div
-                        key={cell.id}
-                        role="cell"
-                        style={{
-                          width:
-                            cell.column.getSize() === 150
-                              ? undefined
-                              : cell.column.getSize(),
-                        }}
-                        className={`min-w-0 px-3 ${
-                          cell.column.id === 'title' || cell.column.id === 'tags'
-                            ? 'flex-1'
-                            : ''
-                        }`}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const isFlexColumn =
+                        cell.column.id === 'title' || cell.column.id === 'tags';
+                      const sizingClass = isFlexColumn ? 'min-w-0 flex-1' : 'shrink-0';
+                      const alignClass =
+                        cell.column.id === 'actions' ? 'flex justify-center px-2' : 'px-3';
+
+                      return (
+                        <div
+                          key={cell.id}
+                          role="cell"
+                          style={{ width: isFlexColumn ? undefined : cell.column.getSize() }}
+                          className={`${sizingClass} ${alignClass}`}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}

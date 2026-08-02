@@ -23,6 +23,7 @@
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
@@ -38,6 +39,7 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  --radius-control: 0.375rem;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,43 +51,44 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #262626;
+  --foreground: #1c1917;
   --card: #ffffff;
-  --card-foreground: #262626;
+  --card-foreground: #1c1917;
   --popover: #ffffff;
-  --popover-foreground: #262626;
+  --popover-foreground: #1c1917;
   --primary: #c74504;
   --primary-foreground: #ffffff;
   --secondary: #f5f5f4;
-  --secondary-foreground: #262626;
+  --secondary-foreground: #1c1917;
   --muted: #f5f5f4;
   --muted-foreground: #555555;
-  --accent: #fbe9e1;
-  --accent-foreground: #a53903;
+  --accent: #fdefe7;
+  --accent-foreground: #a93a03;
   --destructive: #dc2626;
-  --border: #e7e5e4;
-  --input: #e7e5e4;
+  --border: #e8ddc8;
+  --border-strong: #d6c7ab;
+  --input: #e8ddc8;
   --ring: #c74504;
   --chart-1: #c74504;
   --chart-2: #2a6f6f;
   --chart-3: #5b6bc0;
   --chart-4: #b08900;
   --chart-5: #7a7a7a;
-  --radius: 0.5rem;
-  --sidebar: #fafaf9;
-  --sidebar-foreground: #262626;
+  --radius: 0.625rem;
+  --sidebar: #fffaef;
+  --sidebar-foreground: #1c1917;
   --sidebar-primary: #c74504;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fbe9e1;
-  --sidebar-accent-foreground: #a53903;
-  --sidebar-border: #e7e5e4;
+  --sidebar-accent: #fdefe7;
+  --sidebar-accent-foreground: #a93a03;
+  --sidebar-border: #e8ddc8;
   --sidebar-ring: #c74504;
 }
 
 /* Dark theme reserved for a future release; Curo V1 is light-mode only. */
 .dark {
   --background: #ffffff;
-  --foreground: #262626;
+  --foreground: #1c1917;
 }
 
 @layer base {

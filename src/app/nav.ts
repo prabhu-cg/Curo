@@ -6,8 +6,7 @@ import {
   Sparkles,
   FolderKanban,
   BarChart3,
-  Upload,
-  Download,
+  ArrowLeftRight,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
@@ -17,6 +16,15 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   end?: boolean;
+  /** Extra path prefixes that should also count as "active" for this item. */
+  matchPrefixes?: string[];
+}
+
+export function isNavItemActive(item: NavItem, pathname: string): boolean {
+  const prefixes = [item.to, ...(item.matchPrefixes ?? [])];
+  return prefixes.some((prefix) =>
+    item.end ? pathname === prefix : pathname.startsWith(prefix),
+  );
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -27,7 +35,27 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/cleanup', label: 'Cleanup', icon: Sparkles },
   { to: '/collections', label: 'Collections', icon: FolderKanban },
   { to: '/analytics', label: 'Analytics', icon: BarChart3 },
-  { to: '/import', label: 'Import', icon: Upload },
-  { to: '/export', label: 'Export', icon: Download },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  {
+    to: '/import',
+    label: 'Import / Export',
+    icon: ArrowLeftRight,
+    matchPrefixes: ['/export'],
+  },
 ];
+
+/** Rendered separately, pinned to the bottom of the sidebar. */
+export const SETTINGS_NAV_ITEM: NavItem = {
+  to: '/settings',
+  label: 'Settings',
+  icon: Settings,
+};
+
+/** All items, including Settings — used for page-title lookup by route. */
+export const ALL_NAV_ITEMS: NavItem[] = [...NAV_ITEMS, SETTINGS_NAV_ITEM];
+
+export function getPageTitle(pathname: string): string {
+  const match = ALL_NAV_ITEMS.filter((item) => isNavItemActive(item, pathname)).sort(
+    (a, b) => b.to.length - a.to.length,
+  )[0];
+  return match?.label ?? 'Curo';
+}

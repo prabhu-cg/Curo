@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -96,20 +96,20 @@ export function BookmarkFormDialog({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{bookmark ? 'Edit bookmark' : 'New bookmark'}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>{bookmark ? 'Edit bookmark' : 'New bookmark'}</SheetTitle>
+          <SheetDescription>
             {bookmark
               ? 'Update the details for this bookmark.'
               : 'Add a bookmark directly to your library.'}
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <form
           id="bookmark-form"
-          className="space-y-4"
+          className="flex-1 space-y-4 overflow-y-auto px-6 py-5"
           onSubmit={(e) => {
             void onSubmit(e);
           }}
@@ -145,15 +145,15 @@ export function BookmarkFormDialog({
           </Field>
         </form>
 
-        <DialogFooter>
+        <SheetFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button type="submit" form="bookmark-form" disabled={isSubmitting}>
             {bookmark ? 'Save changes' : 'Add bookmark'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }

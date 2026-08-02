@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { getSettings } from '@/services/settingsService';
 import { AppShell } from '@/app/AppShell';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
@@ -40,11 +41,10 @@ const AnalyticsPage = lazy(() =>
     default: m.AnalyticsPage,
   })),
 );
-const ImportPage = lazy(() =>
-  import('@/features/import/ImportPage').then((m) => ({ default: m.ImportPage })),
-);
-const ExportPage = lazy(() =>
-  import('@/features/export/ExportPage').then((m) => ({ default: m.ExportPage })),
+const ImportExportPage = lazy(() =>
+  import('@/features/importExport/ImportExportPage').then((m) => ({
+    default: m.ImportExportPage,
+  })),
 );
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
@@ -76,25 +76,27 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
-            <Route element={<AppShell />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="health" element={<HealthCenterPage />} />
-              <Route path="bookmarks" element={<BookmarksPage />} />
-              <Route path="duplicates" element={<DuplicatesPage />} />
-              <Route path="cleanup" element={<CleanupPage />} />
-              <Route path="collections" element={<CollectionsPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
-              <Route path="import" element={<ImportPage />} />
-              <Route path="export" element={<ExportPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-      <Toaster />
+      <TooltipProvider delayDuration={300}>
+        <BrowserRouter>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route element={<AppShell />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="health" element={<HealthCenterPage />} />
+                <Route path="bookmarks" element={<BookmarksPage />} />
+                <Route path="duplicates" element={<DuplicatesPage />} />
+                <Route path="cleanup" element={<CleanupPage />} />
+                <Route path="collections" element={<CollectionsPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="import" element={<ImportExportPage />} />
+                <Route path="export" element={<ImportExportPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+              </Route>
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+        <Toaster />
+      </TooltipProvider>
     </ErrorBoundary>
   );
 }

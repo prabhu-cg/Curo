@@ -18,7 +18,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
   return [
     columnHelper.display({
       id: 'select',
-      size: 36,
+      size: 40,
       header: ({ table }) => (
         <Checkbox
           aria-label="Select all bookmarks"
@@ -42,7 +42,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
     }),
     columnHelper.display({
       id: 'favorite',
-      size: 36,
+      size: 40,
       header: '',
       cell: ({ row }) => (
         <button
@@ -83,6 +83,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
     columnHelper.accessor((row) => row.folderPath.join(' / '), {
       id: 'folder',
       header: 'Folder',
+      size: 140,
       cell: ({ row }) => (
         <span className="text-sm text-[#555555]">
           {row.original.folderPath.join(' / ') || '—'}
@@ -110,6 +111,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
     columnHelper.accessor('dateAdded', {
       id: 'dateAdded',
       header: 'Added',
+      size: 110,
       cell: ({ row }) => (
         <span className="text-sm text-[#555555]">
           {new Date(row.original.dateAdded).toLocaleDateString()}
@@ -118,7 +120,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
     }),
     columnHelper.display({
       id: 'actions',
-      size: 40,
+      size: 56,
       cell: ({ row }) => (
         <BookmarkRowActions
           bookmark={row.original}

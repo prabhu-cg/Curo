@@ -3,13 +3,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -72,18 +72,18 @@ export function CollectionFormDialog({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{collection ? 'Rename collection' : 'New collection'}</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>{collection ? 'Rename collection' : 'New collection'}</SheetTitle>
+          <SheetDescription>
             Custom collections group bookmarks however you like.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
         <form
           id="collection-form"
-          className="space-y-4"
+          className="flex-1 space-y-4 overflow-y-auto px-6 py-5"
           onSubmit={(e) => {
             void onSubmit(e);
           }}
@@ -100,15 +100,15 @@ export function CollectionFormDialog({
           </Field>
         </form>
 
-        <DialogFooter>
+        <SheetFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button type="submit" form="collection-form" disabled={isSubmitting}>
             {collection ? 'Save changes' : 'Create collection'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
