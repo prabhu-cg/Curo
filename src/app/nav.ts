@@ -11,6 +11,9 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+/** The marketing site the sidebar logo links back to. Update once deployed. */
+export const MARKETING_SITE_URL = 'https://getcuro.vercel.app';
+
 export interface NavItem {
   to: string;
   label: string;

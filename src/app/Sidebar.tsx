@@ -4,7 +4,13 @@ import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUiStore } from '@/store/uiStore';
 import logoUrl from '@/assets/logo.svg';
-import { isNavItemActive, NAV_ITEMS, SETTINGS_NAV_ITEM, type NavItem } from './nav';
+import {
+  isNavItemActive,
+  MARKETING_SITE_URL,
+  NAV_ITEMS,
+  SETTINGS_NAV_ITEM,
+  type NavItem,
+} from './nav';
 
 interface SidebarProps {
   onNavigate?: () => void;
@@ -80,9 +86,12 @@ export function Sidebar({ onNavigate, allowCollapse = true }: SidebarProps) {
 
   return (
     <div className="bg-sidebar flex h-full flex-col">
-      <div
+      <a
+        href={MARKETING_SITE_URL}
+        target="_blank"
+        rel="noreferrer"
         className={cn(
-          'flex items-center gap-2.5 px-5 py-5',
+          'focus-visible:ring-ring flex items-center gap-2.5 rounded-lg px-5 py-5 transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:outline-none',
           collapsed && 'justify-center px-0',
         )}
       >
@@ -95,7 +104,7 @@ export function Sidebar({ onNavigate, allowCollapse = true }: SidebarProps) {
             </p>
           </div>
         )}
-      </div>
+      </a>
 
       <nav aria-label="Primary" className="flex-1 space-y-0.5 px-3">
         {NAV_ITEMS.map((item) => (
