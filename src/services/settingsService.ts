@@ -2,11 +2,36 @@ import { db } from './db';
 import { DEFAULT_SETTINGS } from '@/types';
 import type { AppSettings, Bookmark, Collection } from '@/types';
 
+/**
+ * Reads the singleton settings row, backfilling any fields added by a later
+ * app version (and persisting the backfill) so older stored settings never
+ * end up missing a key that newer code assumes exists.
+ */
 export async function getSettings(): Promise<AppSettings> {
   const existing = await db.settings.get('app');
-  if (existing) return existing;
-  await db.settings.put(DEFAULT_SETTINGS);
-  return DEFAULT_SETTINGS;
+  if (!existing) {
+    await db.settings.put(DEFAULT_SETTINGS);
+    return DEFAULT_SETTINGS;
+  }
+
+  const merged: AppSettings = {
+    ...DEFAULT_SETTINGS,
+    ...existing,
+    appearance: { ...DEFAULT_SETTINGS.appearance, ...existing.appearance },
+    importBehavior: { ...DEFAULT_SETTINGS.importBehavior, ...existing.importBehavior },
+    exportBehavior: { ...DEFAULT_SETTINGS.exportBehavior, ...existing.exportBehavior },
+    backup: { ...DEFAULT_SETTINGS.backup, ...existing.backup },
+    healthScoreWeights: {
+      ...DEFAULT_SETTINGS.healthScoreWeights,
+      ...existing.healthScoreWeights,
+    },
+  };
+
+  if (JSON.stringify(merged) !== JSON.stringify(existing)) {
+    await db.settings.put(merged);
+  }
+
+  return merged;
 }
 
 export async function updateSettings(
@@ -20,6 +45,7 @@ export async function updateSettings(
     importBehavior: { ...current.importBehavior, ...patch.importBehavior },
     exportBehavior: { ...current.exportBehavior, ...patch.exportBehavior },
     backup: { ...current.backup, ...patch.backup },
+    healthScoreWeights: { ...current.healthScoreWeights, ...patch.healthScoreWeights },
   };
   await db.settings.put(next);
   return next;

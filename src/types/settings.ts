@@ -1,3 +1,6 @@
+import { DEFAULT_HEALTH_WEIGHTS } from './analytics';
+import type { HealthScoreWeights } from './analytics';
+
 export type ExportFormat = 'html' | 'csv' | 'json' | 'markdown';
 export type UiDensity = 'comfortable' | 'compact';
 
@@ -22,6 +25,7 @@ export interface AppSettings {
   };
   demoDataEnabled: boolean;
   keyboardShortcutsEnabled: boolean;
+  healthScoreWeights: HealthScoreWeights;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -43,4 +47,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   },
   demoDataEnabled: false,
   keyboardShortcutsEnabled: true,
+  healthScoreWeights: DEFAULT_HEALTH_WEIGHTS,
 };

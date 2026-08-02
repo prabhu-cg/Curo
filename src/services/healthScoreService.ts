@@ -4,6 +4,7 @@ import {
   detectEmptyFolders,
   suggestFolderMerges,
 } from './folderService';
+import { DEFAULT_HEALTH_WEIGHTS } from '@/types';
 import type {
   ActionableInsight,
   Bookmark,
@@ -13,15 +14,9 @@ import type {
   HealthScoreWeights,
 } from '@/types';
 
-const STALE_AGE_DAYS = 730;
+export { DEFAULT_HEALTH_WEIGHTS };
 
-export const DEFAULT_HEALTH_WEIGHTS: HealthScoreWeights = {
-  duplicates: 0.25,
-  organization: 0.25,
-  tags: 0.2,
-  titles: 0.15,
-  freshness: 0.15,
-};
+const STALE_AGE_DAYS = 730;
 
 function clamp(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));

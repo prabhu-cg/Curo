@@ -64,6 +64,14 @@ export type HealthFactorKey = (typeof HEALTH_FACTOR_KEYS)[number];
 
 export type HealthScoreWeights = Record<HealthFactorKey, number>;
 
+export const DEFAULT_HEALTH_WEIGHTS: HealthScoreWeights = {
+  duplicates: 0.25,
+  organization: 0.25,
+  tags: 0.2,
+  titles: 0.15,
+  freshness: 0.15,
+};
+
 export type InsightSeverity = 'info' | 'warning' | 'critical';
 
 export interface ActionableInsight {
