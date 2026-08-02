@@ -10,38 +10,46 @@ server, no AI, no analytics.
 ## Features
 
 1. **Dashboard** — KPIs, a growth-over-time chart, and a Knowledge Health Score
-   with a weighted breakdown (duplicate-free, organized, tagged, well-labeled,
-   fresh).
-2. **Import** — drag-and-drop or browse a standard Netscape-format bookmarks HTML
+   summary linking to the full Health Center.
+2. **Health Center** — the full score breakdown, sliders to configure how much
+   each factor (duplicates, organization, tags, titles, freshness) counts
+   toward the overall score, and a prioritized, actionable insights list that
+   links straight to where each issue can be fixed.
+3. **Import** — drag-and-drop or browse a standard Netscape-format bookmarks HTML
    export (Chrome, Firefox, Safari, Edge all produce this). Live preview with
    per-entry validation before anything is written to storage.
-3. **Local persistence** — everything lives in IndexedDB via Dexie.js. Nothing
+4. **Local persistence** — everything lives in IndexedDB via Dexie.js. Nothing
    leaves the browser.
-4. **URL normalization** — tracking parameters (`utm_*`, `fbclid`, `gclid`, …)
+5. **URL normalization** — tracking parameters (`utm_*`, `fbclid`, `gclid`, …)
    are stripped, hosts are lowercased, default ports and trailing slashes are
    removed, and a bare `www.` is treated as the same site — all so that
    equivalent URLs collapse to one canonical form for storage and dedupe.
-5. **Duplicate detection** — exact-URL groups plus a fuzzy near-duplicate pass
+6. **Duplicate detection** — exact-URL groups plus a fuzzy near-duplicate pass
    (same domain, near-identical title) via Fuse.js. Review each group, pick a
    canonical entry (tags and collections are merged in), or auto-resolve
    everything in one click.
-6. **Collections** — custom, user-created collections plus automatic ones
+7. **Cleanup Engine** — missing-metadata detection (generic title, no favicon,
+   no tags) with bulk fix actions, first-class folder tracking so genuinely
+   empty folders are detectable and deletable, broken-hierarchy detection
+   (orphaned parents, empty path segments, duplicate paths), and Fuse.js-based
+   folder-merge suggestions for near-identical sibling folder names.
+8. **Collections** — custom, user-created collections plus automatic ones
    (Favorites, Recently Added, Uncategorized, top domains, top folders) computed
    live from your bookmarks.
-7. **Bookmark table** — virtualized (TanStack Virtual) and sortable/filterable
+9. **Bookmark table** — virtualized (TanStack Virtual) and sortable/filterable
    (TanStack Table) for large libraries, with bulk actions (favorite, tag, add to
    collection, delete) and per-row actions.
-8. **Fuzzy search** — Fuse.js across title, URL, domain, folder, collection, and
-   tags, wired into the global header search bar (press `/` to focus it).
-9. **Analytics** — domain, folder, collection, and bookmark-age distributions
-   plus growth over time, rendered with Recharts.
-10. **Export** — HTML, CSV, JSON, or Markdown, scoped to all bookmarks,
+10. **Fuzzy search** — Fuse.js across title, URL, domain, folder, collection, and
+    tags, wired into the global header search bar (press `/` to focus it).
+11. **Analytics** — domain, folder, collection, and bookmark-age distributions
+    plus growth over time, rendered with Recharts.
+12. **Export** — HTML, CSV, JSON, or Markdown, scoped to all bookmarks,
     favorites, or a single collection. Multiple formats bundle into a zip
     (JSZip).
-11. **Settings** — appearance density, import/export defaults, full-library
+13. **Settings** — appearance density, import/export defaults, full-library
     backup/restore (JSON), a keyboard-shortcut reference, and (development
     builds only) sample-data seeding.
-12. **Empty states and error handling everywhere** — every data-dependent view
+14. **Empty states and error handling everywhere** — every data-dependent view
     has a real empty state, and a global error boundary plus an
     unhandled-rejection listener keep failures visible instead of silent.
 
@@ -131,8 +139,8 @@ src/
   data/                Sample dataset for development (gated by import.meta.env.DEV)
   features/            One folder per feature area, each owning its page(s) and
                         feature-local components:
-    dashboard/  bookmarks/  duplicates/  collections/
-    analytics/  import/     export/      settings/
+    dashboard/  health/      bookmarks/  duplicates/  cleanup/
+    collections/ analytics/  import/     export/       settings/
   hooks/               Reactive data hooks (Dexie live queries) and computed-data hooks
   lib/                 Small framework-agnostic helpers (cn(), chart theme constants)
   services/            All persistence and business logic — see below
@@ -144,20 +152,22 @@ e2e/                   Playwright end-to-end tests + fixtures
 
 ### Services
 
-| Service                 | Responsibility                                                    |
-| ----------------------- | ----------------------------------------------------------------- |
-| `db.ts`                 | Dexie database + schema (bookmarks, collections, settings tables) |
-| `urlNormalizer.ts`      | Tracking-parameter stripping, host/port/slash normalization       |
-| `importService.ts`      | Netscape bookmarks HTML parsing + validation                      |
-| `bookmarkService.ts`    | Bookmark CRUD, bulk operations, import persistence                |
-| `dedupeService.ts`      | Exact-URL and fuzzy near-duplicate detection, merging             |
-| `collectionService.ts`  | Custom collection CRUD + automatic collection rules               |
-| `searchService.ts`      | Fuse.js index construction and querying                           |
-| `analyticsService.ts`   | Domain/folder/collection/age/growth aggregation                   |
-| `healthScoreService.ts` | Knowledge Health Score computation                                |
-| `exportService.ts`      | HTML/CSV/JSON/Markdown generation + zip bundling                  |
-| `settingsService.ts`    | Settings persistence, full-library backup/restore                 |
-| `demoDataService.ts`    | Seeds/clears the development sample dataset                       |
+| Service                 | Responsibility                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| `db.ts`                 | Dexie database + schema (bookmarks, collections, settings, folders tables)         |
+| `urlNormalizer.ts`      | Tracking-parameter stripping, host/port/slash normalization                        |
+| `importService.ts`      | Netscape bookmarks HTML parsing + validation                                       |
+| `bookmarkService.ts`    | Bookmark CRUD, bulk operations, import persistence                                 |
+| `dedupeService.ts`      | Exact-URL and fuzzy near-duplicate detection, merging                              |
+| `folderService.ts`      | Folder registry, empty/broken-hierarchy detection, merge suggestions, rename/merge |
+| `cleanupService.ts`     | Missing-metadata detection, unified cleanup report, batch-apply fixes              |
+| `collectionService.ts`  | Custom collection CRUD + automatic collection rules                                |
+| `searchService.ts`      | Fuse.js index construction and querying                                            |
+| `analyticsService.ts`   | Domain/folder/collection/age/growth aggregation                                    |
+| `healthScoreService.ts` | Configurable Knowledge Health Score + actionable insights                          |
+| `exportService.ts`      | HTML/CSV/JSON/Markdown generation + zip bundling                                   |
+| `settingsService.ts`    | Settings persistence (with schema-drift backfill), full-library backup/restore     |
+| `demoDataService.ts`    | Seeds/clears the development sample dataset                                        |
 
 Every service above has unit tests colocated as `*.test.ts`.
 
@@ -171,9 +181,12 @@ that state through a _named_ attribute value — `data-state="checked"`, not a
 standalone `data-checked` attribute. We patched every affected component
 (`switch`, `checkbox`, `radio-group`, `dialog`, `alert-dialog`, `popover`,
 `dropdown-menu`, `select`, `sheet`, `tabs`, `tooltip`, `separator`,
-`scroll-area`) to use the correct `data-[state=checked]:` /
+`scroll-area`, `slider`) to use the correct `data-[state=checked]:` /
 `data-[orientation=horizontal]:` form. If you regenerate any of these via the
-shadcn CLI, re-check for this pattern.
+shadcn CLI, re-check for this pattern. Separately, the generated `slider.tsx`
+applied `aria-label` to the Radix Root (which carries no ARIA role) instead of
+the Thumb (the actual `role="slider"` element) — every weight slider was an
+unlabeled control for screen readers until this was forwarded correctly.
 
 ## Design system
 
@@ -192,10 +205,12 @@ shadcn CLI, re-check for this pattern.
 
 - **Unit (Vitest + Testing Library + fake-indexeddb):** every service function,
   colocated as `src/services/*.test.ts`. Run with `npm run test`.
-- **End-to-end (Playwright):** `e2e/*.spec.ts` covers the four flows called out
-  in the brief — import (with a validation-error case), fuzzy search, duplicate
-  detection + merge, and export (single format, multi-format zip, and a scoped
-  export). Run with `npm run test:e2e`.
+- **End-to-end (Playwright):** `e2e/*.spec.ts` covers import (with a
+  validation-error case), fuzzy search, duplicate detection + merge, export
+  (single format, multi-format zip, and a scoped export), Cleanup (bulk-tagging
+  missing metadata, empty-folder detection + deletion), and Health Center
+  (score/insights display, weight adjustment persisting across reload,
+  reset-to-defaults). Run with `npm run test:e2e`.
 
 ## Future extension points
 
@@ -235,3 +250,26 @@ dark` Tailwind hook and a (currently unused, identical-to-light) `.dark`
   custom collections; there's no drag-and-drop folder reorganization UI.
 - The near-duplicate pass compares title similarity within the same domain; it
   won't catch duplicates that were retitled entirely differently.
+- Folder counts assume a realistic personal library (hundreds to low
+  thousands of folders): `folderService` reads the whole `folders` table into
+  memory rather than querying by prefix. Fine at this scale; would need
+  revisiting before a 100k-bookmark, tens-of-thousands-of-folders library.
+
+### Not yet built (deferred from the Phase 2 brief)
+
+Phase 2 originally scoped eight modules; this pass deepened the Cleanup Engine
+and shipped a full Health Center, deliberately deferring the rest rather than
+building them thin. Not yet implemented:
+
+- **Smart Categorization** (rule-based classifier, 50+ built-in categories,
+  user-editable rules).
+- **Timeline Explorer** (year/month/day drill-down, import history).
+- **Advanced Search** additions beyond the existing Fuse.js search — saved
+  searches, recent searches, a command palette (`cmdk` is already a
+  dependency via the `command` shadcn component, unused so far).
+- **Undo/redo**, as a cross-cutting command-history framework covering every
+  mutation, not just Cleanup's batch operations.
+- **Web Worker offloading** and the 100,000-bookmark performance target —
+  today's dedupe/cleanup/analytics computations run on the main thread via
+  `useMemo`, which is fine at typical personal-library scale (hundreds to a
+  few thousand bookmarks) but would visibly block the UI well before 100k.
