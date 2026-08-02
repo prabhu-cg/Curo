@@ -51,3 +51,27 @@ export interface HealthScoreBreakdown {
   score: number;
   factors: HealthScoreFactor[];
 }
+
+export const HEALTH_FACTOR_KEYS = [
+  'duplicates',
+  'organization',
+  'tags',
+  'titles',
+  'freshness',
+] as const;
+
+export type HealthFactorKey = (typeof HEALTH_FACTOR_KEYS)[number];
+
+export type HealthScoreWeights = Record<HealthFactorKey, number>;
+
+export type InsightSeverity = 'info' | 'warning' | 'critical';
+
+export interface ActionableInsight {
+  id: string;
+  title: string;
+  description: string;
+  severity: InsightSeverity;
+  actionLabel: string;
+  actionHref: string;
+  count?: number;
+}

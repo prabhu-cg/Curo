@@ -1,5 +1,6 @@
 import { db } from './db';
 import { normalizeUrl } from './urlNormalizer';
+import { registerFolderPaths } from './folderService';
 import type {
   Bookmark,
   BookmarkUpdate,
@@ -132,12 +133,15 @@ export interface ImportOptions {
 
 /**
  * Persists parsed bookmark nodes from an import, normalizing URLs and
- * skipping duplicates of what's already stored when requested.
+ * skipping duplicates of what's already stored when requested. Also
+ * registers every folder path encountered (including empty ones) so they
+ * survive for the Cleanup Engine to reason about later.
  */
 export async function importParsedBookmarks(
   nodes: ParsedBookmarkNode[],
   issues: ImportValidationIssue[],
   options: ImportOptions,
+  folderPaths: string[][] = [],
 ): Promise<ImportSummary> {
   const existingUrls = await getExistingNormalizedUrls();
   const seenInBatch = new Set<string>();
@@ -188,6 +192,10 @@ export async function importParsedBookmarks(
 
   if (toInsert.length > 0) {
     await db.bookmarks.bulkAdd(toInsert);
+  }
+
+  if (folderPaths.length > 0) {
+    await registerFolderPaths(folderPaths);
   }
 
   return { imported: toInsert.length, skipped, issues: runIssues };

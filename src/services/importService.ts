@@ -7,6 +7,7 @@ interface ParseResult {
   nodes: ParsedBookmarkNode[];
   issues: ImportValidationIssue[];
   totalFound: number;
+  folderPaths: string[][];
 }
 
 function parseAddDate(raw: string | null): number | undefined {
@@ -22,6 +23,7 @@ function walkFolder(
   folderPath: string[],
   nodes: ParsedBookmarkNode[],
   issues: ImportValidationIssue[],
+  folderPaths: string[][],
 ): void {
   const children = Array.from(dl.children);
 
@@ -34,6 +36,11 @@ function walkFolder(
 
     if (first.tagName === 'H3') {
       const folderName = first.textContent?.trim() || 'Untitled Folder';
+      const thisFolderPath = [...folderPath, folderName];
+      // Record every folder encountered, even ones with no direct bookmarks,
+      // so empty folders survive import instead of vanishing silently.
+      folderPaths.push(thisFolderPath);
+
       let nestedDl = child.querySelector(':scope > dl');
 
       if (!nestedDl) {
@@ -45,7 +52,7 @@ function walkFolder(
       }
 
       if (nestedDl) {
-        walkFolder(nestedDl, [...folderPath, folderName], nodes, issues);
+        walkFolder(nestedDl, thisFolderPath, nodes, issues, folderPaths);
       }
       continue;
     }
@@ -115,6 +122,7 @@ function walkFolder(
 export function parseBookmarksHtml(html: string): ParseResult {
   const issues: ImportValidationIssue[] = [];
   const nodes: ParsedBookmarkNode[] = [];
+  const folderPaths: string[][] = [];
 
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const rootDl = doc.querySelector('dl');
@@ -125,13 +133,13 @@ export function parseBookmarksHtml(html: string): ParseResult {
       message:
         'No bookmark list was found in this file. Make sure it is a browser bookmarks HTML export.',
     });
-    return { nodes, issues, totalFound: 0 };
+    return { nodes, issues, totalFound: 0, folderPaths };
   }
 
-  walkFolder(rootDl, [], nodes, issues);
+  walkFolder(rootDl, [], nodes, issues, folderPaths);
 
   const errorCount = issues.filter((issue) => issue.level === 'error').length;
-  return { nodes, issues, totalFound: nodes.length + errorCount };
+  return { nodes, issues, totalFound: nodes.length + errorCount, folderPaths };
 }
 
 /**
@@ -143,7 +151,7 @@ export function buildImportPreview(
   html: string,
   existingNormalizedUrls: ReadonlySet<string>,
 ): ImportPreview {
-  const { nodes, issues, totalFound } = parseBookmarksHtml(html);
+  const { nodes, issues, totalFound, folderPaths } = parseBookmarksHtml(html);
 
   let duplicatesWithExisting = 0;
   for (const node of nodes) {
@@ -159,5 +167,6 @@ export function buildImportPreview(
     validBookmarks: nodes,
     issues,
     duplicatesWithExisting,
+    folderPaths,
   };
 }

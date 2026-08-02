@@ -23,6 +23,8 @@ export interface ImportPreview {
   issues: ImportValidationIssue[];
   /** Count of parsed bookmarks whose normalized URL already exists in the store. */
   duplicatesWithExisting: number;
+  /** Every folder path encountered in the file, including ones with no direct bookmarks. */
+  folderPaths: string[][];
 }
 
 export interface ImportSummary {

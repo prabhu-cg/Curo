@@ -59,6 +59,7 @@ export function useImportFlow() {
         state.preview.validBookmarks,
         state.preview.issues,
         { skipInvalidEntries: true, skipDuplicates },
+        state.preview.folderPaths,
       );
       setState((prev) => ({ ...prev, status: 'done', summary }));
     },

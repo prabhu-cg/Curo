@@ -40,6 +40,13 @@ describe('parseBookmarksHtml', () => {
     expect(nested?.folderPath).toEqual(['Dev', 'Nested']);
   });
 
+  it('records every folder path encountered, including nested empty ones', () => {
+    const { folderPaths } = parseBookmarksHtml(SAMPLE_HTML);
+    const keys = folderPaths.map((p) => p.join('/'));
+    expect(keys).toContain('Dev');
+    expect(keys).toContain('Dev/Nested');
+  });
+
   it('reports an error and skips entries with an unparseable URL', () => {
     const { nodes, issues } = parseBookmarksHtml(SAMPLE_HTML);
     expect(nodes.find((n) => n.title === 'Broken')).toBeUndefined();
