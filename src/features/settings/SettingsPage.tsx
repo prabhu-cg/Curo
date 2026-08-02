@@ -1,5 +1,13 @@
 import { useRef, useState } from 'react';
-import { Database, FlaskConical, Trash2, Upload } from 'lucide-react';
+import {
+  Database,
+  Download,
+  FlaskConical,
+  Keyboard,
+  Palette,
+  Trash2,
+  Upload,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,6 +40,7 @@ import {
 import { downloadTextFile } from '@/services/exportService';
 import { clearAllBookmarks } from '@/services/bookmarkService';
 import { seedDemoData } from '@/services/demoDataService';
+import { MOD_KEY_LABEL } from '@/lib/platform';
 import type { ExportFormat, UiDensity } from '@/types';
 
 export function SettingsPage() {
@@ -85,9 +94,15 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
+      <p className="-mt-4 text-sm text-muted-foreground">
+        Preferences are stored in this browser and apply to all your bookmarks.
+      </p>
+
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Appearance</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Palette className="size-4" /> Appearance
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <RadioGroup
@@ -107,11 +122,13 @@ export function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Import behavior</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Upload className="size-4" /> Import behavior
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
+        <CardContent className="divide-border divide-y">
+          <div className="flex items-center justify-between gap-4 pb-3">
             <Label htmlFor="auto-normalize" className="font-normal">
               Normalize URLs and strip tracking parameters
             </Label>
@@ -128,7 +145,7 @@ export function SettingsPage() {
               }
             />
           </div>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 pt-3">
             <Label htmlFor="auto-dedupe" className="font-normal">
               Skip duplicates already in your library
             </Label>
@@ -149,11 +166,13 @@ export function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Export behavior</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Download className="size-4" /> Export behavior
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
+        <CardContent className="divide-border divide-y">
+          <div className="flex items-center justify-between gap-4 pb-3">
             <Label htmlFor="default-format" className="font-normal">
               Default format
             </Label>
@@ -179,7 +198,7 @@ export function SettingsPage() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 pt-3">
             <Label htmlFor="preserve-folders" className="font-normal">
               Preserve folder structure by default
             </Label>
@@ -200,11 +219,13 @@ export function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Backup</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Database className="size-4" /> Backup
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <p className="text-xs text-[#555555]">
+          <p className="text-xs text-muted-foreground">
             {settings.backup.lastBackupAt
               ? `Last backup: ${new Date(settings.backup.lastBackupAt).toLocaleString()}`
               : 'No backup created yet.'}
@@ -232,11 +253,13 @@ export function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Keyboard shortcuts</CardTitle>
+        <CardHeader className="border-b">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+            <Keyboard className="size-4" /> Keyboard shortcuts
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
+        <CardContent className="divide-border divide-y">
+          <div className="flex items-center justify-between gap-4 pb-3">
             <Label htmlFor="shortcuts-enabled" className="font-normal">
               Enable keyboard shortcuts
             </Label>
@@ -248,32 +271,34 @@ export function SettingsPage() {
               }
             />
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 pt-3 text-sm">
             <dt>
-              <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">/</kbd>
+              <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">
+                {MOD_KEY_LABEL}K
+              </kbd>
             </dt>
-            <dd className="text-[#555555]">Jump to search</dd>
+            <dd className="text-muted-foreground">Jump to search</dd>
             <dt>
               <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Tab</kbd>
             </dt>
-            <dd className="text-[#555555]">Move between controls</dd>
+            <dd className="text-muted-foreground">Move between controls</dd>
             <dt>
               <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Enter</kbd> /{' '}
               <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Space</kbd>
             </dt>
-            <dd className="text-[#555555]">Activate the focused control</dd>
+            <dd className="text-muted-foreground">Activate the focused control</dd>
             <dt>
               <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Esc</kbd>
             </dt>
-            <dd className="text-[#555555]">Close a dialog or menu</dd>
+            <dd className="text-muted-foreground">Close a dialog or menu</dd>
           </dl>
         </CardContent>
       </Card>
 
       {import.meta.env.DEV && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-sm">
+          <CardHeader className="border-b">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
               <FlaskConical className="size-4" /> Development
             </CardTitle>
           </CardHeader>

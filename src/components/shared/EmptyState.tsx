@@ -25,11 +25,11 @@ export function EmptyState({
       )}
     >
       <div className="bg-muted mb-4 flex size-12 items-center justify-center rounded-full">
-        <Icon className="size-6 text-[#555555]" aria-hidden="true" />
+        <Icon className="size-6 text-muted-foreground" aria-hidden="true" />
       </div>
       <h2 className="text-foreground text-sm font-semibold">{title}</h2>
       {description && (
-        <p className="mt-1 max-w-sm text-sm text-[#555555]">{description}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
       )}
       {action && <div className="mt-4">{action}</div>}
     </div>

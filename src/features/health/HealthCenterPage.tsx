@@ -39,7 +39,7 @@ const SEVERITY_ICON: Record<ActionableInsight['severity'], typeof Info> = {
 const SEVERITY_COLOR: Record<ActionableInsight['severity'], string> = {
   critical: 'text-destructive',
   warning: 'text-[#b08900]',
-  info: 'text-[#555555]',
+  info: 'text-muted-foreground',
 };
 
 export function HealthCenterPage() {
@@ -82,7 +82,7 @@ export function HealthCenterPage() {
         <CardContent className="space-y-6">
           <div className="flex items-baseline gap-2">
             <span className="text-5xl font-semibold">{health.score}</span>
-            <span className="text-sm text-[#555555]">
+            <span className="text-sm text-muted-foreground">
               / 100 · {scoreLabel(health.score)}
             </span>
           </div>
@@ -92,10 +92,10 @@ export function HealthCenterPage() {
               <div key={factor.key}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="font-medium">{factor.label}</span>
-                  <span className="text-[#555555]">{factor.value}</span>
+                  <span className="text-muted-foreground">{factor.value}</span>
                 </div>
                 <Progress value={factor.value} aria-label={factor.label} />
-                <p className="mt-1 text-xs text-[#555555]">{factor.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{factor.description}</p>
               </div>
             ))}
           </div>
@@ -110,7 +110,7 @@ export function HealthCenterPage() {
           </Button>
         </CardHeader>
         <CardContent className="space-y-5">
-          <p className="text-xs text-[#555555]">
+          <p className="text-xs text-muted-foreground">
             Adjust how much each factor counts toward your overall score.
           </p>
           {health.factors.map((factor) => (
@@ -127,7 +127,7 @@ export function HealthCenterPage() {
                 }}
                 aria-label={`${factor.label} weight`}
               />
-              <span className="w-10 shrink-0 text-right text-xs text-[#555555] tabular-nums">
+              <span className="w-10 shrink-0 text-right text-xs text-muted-foreground tabular-nums">
                 {Math.round(
                   settings.healthScoreWeights[factor.key as HealthFactorKey] * 100,
                 )}
@@ -144,7 +144,7 @@ export function HealthCenterPage() {
         </CardHeader>
         <CardContent className="space-y-1">
           {insights.length === 0 ? (
-            <p className="py-4 text-center text-sm text-[#555555]">
+            <p className="py-4 text-center text-sm text-muted-foreground">
               No issues found — your library is in great shape.
             </p>
           ) : (
@@ -162,9 +162,9 @@ export function HealthCenterPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium">{insight.title}</p>
-                    <p className="text-xs text-[#555555]">{insight.description}</p>
+                    <p className="text-xs text-muted-foreground">{insight.description}</p>
                   </div>
-                  <span className="flex shrink-0 items-center gap-1 text-xs text-[#555555]">
+                  <span className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
                     {insight.actionLabel} <ArrowRight className="size-3" />
                   </span>
                 </Link>

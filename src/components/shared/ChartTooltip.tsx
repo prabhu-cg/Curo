@@ -28,7 +28,7 @@ export function ChartTooltip({
   return (
     <div className="bg-popover text-popover-foreground rounded-md border px-3 py-2 text-xs shadow-md">
       <p className="font-medium">{formatLabel ? formatLabel(String(label)) : label}</p>
-      <p className="text-[#555555]">{formatValue ? formatValue(value) : value}</p>
+      <p className="text-muted-foreground">{formatValue ? formatValue(value) : value}</p>
     </div>
   );
 }

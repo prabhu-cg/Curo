@@ -38,7 +38,7 @@ export function ImportPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Import bookmarks</h2>
-        <p className="text-sm text-[#555555]">
+        <p className="text-sm text-muted-foreground">
           Export your bookmarks as an HTML file from Chrome, Firefox, Safari, or Edge,
           then bring them into Curo.
         </p>
@@ -70,11 +70,11 @@ export function ImportPage() {
             isDraggingOver ? 'border-primary bg-accent' : 'hover:bg-muted/50'
           }`}
         >
-          <UploadCloud className="mb-4 size-10 text-[#555555]" aria-hidden="true" />
+          <UploadCloud className="mb-4 size-10 text-muted-foreground" aria-hidden="true" />
           <p className="text-sm font-medium">
             Drop your bookmarks HTML file here, or click to browse
           </p>
-          <p className="mt-1 text-xs text-[#555555]">
+          <p className="mt-1 text-xs text-muted-foreground">
             Supports the standard Netscape bookmarks format exported by every major
             browser
           </p>
@@ -89,7 +89,7 @@ export function ImportPage() {
       )}
 
       {flow.status === 'parsing' && (
-        <div className="flex flex-col items-center gap-3 py-16 text-sm text-[#555555]">
+        <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
           <Loader2 className="size-6 animate-spin" aria-hidden="true" />
           Reading {flow.fileName}…
         </div>
@@ -127,7 +127,7 @@ export function ImportPage() {
                 <CardTitle className="text-sm">Issues found</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-1 text-sm text-[#555555]">
+                <ul className="space-y-1 text-sm text-muted-foreground">
                   {flow.preview.issues.slice(0, MAX_ISSUES_SHOWN).map((issue, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <AlertTriangle
@@ -141,7 +141,7 @@ export function ImportPage() {
                   ))}
                 </ul>
                 {flow.preview.issues.length > MAX_ISSUES_SHOWN && (
-                  <p className="mt-2 text-xs text-[#555555]">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     +{flow.preview.issues.length - MAX_ISSUES_SHOWN} more
                   </p>
                 )}
@@ -161,7 +161,7 @@ export function ImportPage() {
                     .map((node, i) => (
                       <li key={i} className="py-2">
                         <p className="truncate text-sm font-medium">{node.title}</p>
-                        <p className="truncate text-xs text-[#555555]">
+                        <p className="truncate text-xs text-muted-foreground">
                           {node.folderPath.length > 0 &&
                             `${node.folderPath.join(' / ')} · `}
                           {node.url}
@@ -171,7 +171,7 @@ export function ImportPage() {
                 </ul>
               </ScrollArea>
               {flow.preview.validBookmarks.length > MAX_PREVIEW_ROWS && (
-                <p className="border-t px-6 py-3 text-xs text-[#555555]">
+                <p className="border-t px-6 py-3 text-xs text-muted-foreground">
                   +{flow.preview.validBookmarks.length - MAX_PREVIEW_ROWS} more not shown
                 </p>
               )}
@@ -202,7 +202,7 @@ export function ImportPage() {
       )}
 
       {flow.status === 'importing' && (
-        <div className="flex flex-col items-center gap-3 py-16 text-sm text-[#555555]">
+        <div className="flex flex-col items-center gap-3 py-16 text-sm text-muted-foreground">
           <Loader2 className="size-6 animate-spin" aria-hidden="true" />
           Importing your bookmarks…
         </div>
@@ -241,7 +241,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <p className="text-foreground text-2xl font-semibold">{value}</p>
-      <p className="text-xs text-[#555555]">{label}</p>
+      <p className="text-xs text-muted-foreground">{label}</p>
     </div>
   );
 }

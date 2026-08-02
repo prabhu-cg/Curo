@@ -13,19 +13,30 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { Pagination } from '@/components/shared/Pagination';
 import { useBookmarks, useDuplicates } from '@/hooks';
 import { mergeDuplicateGroup } from '@/services/dedupeService';
 import { DuplicateGroupCard } from './DuplicateGroupCard';
+
+const PAGE_SIZE = 25;
 
 export function DuplicatesPage() {
   const { bookmarks } = useBookmarks();
   const allGroups = useDuplicates(bookmarks);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [confirmAutoResolve, setConfirmAutoResolve] = useState(false);
+  const [page, setPage] = useState(1);
 
   const groups = useMemo(
     () => allGroups.filter((g) => !dismissedIds.has(g.id)),
     [allGroups, dismissedIds],
+  );
+
+  const pageCount = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedGroups = useMemo(
+    () => groups.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [groups, currentPage],
   );
 
   const extraCount = useMemo(
@@ -66,23 +77,28 @@ export function DuplicatesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="mx-auto max-w-3xl space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Curo groups bookmarks that share the same URL or a near-identical title. Review
+        each group below and pick which copy to keep, or auto-resolve everything at once.
+      </p>
+
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">
+          <p className="text-sm font-medium">
             {groups.length} duplicate group{groups.length === 1 ? '' : 's'}
-          </h2>
-          <p className="text-sm text-[#555555]">
+          </p>
+          <p className="text-sm text-muted-foreground">
             Merging removes {extraCount} redundant bookmark{extraCount === 1 ? '' : 's'}.
           </p>
         </div>
-        <Button onClick={() => setConfirmAutoResolve(true)}>
+        <Button variant="outline" onClick={() => setConfirmAutoResolve(true)}>
           <Sparkles /> Auto-resolve all
         </Button>
       </div>
 
       <div className="space-y-4">
-        {groups.map((group) => (
+        {pagedGroups.map((group) => (
           <DuplicateGroupCard
             key={group.id}
             group={group}
@@ -93,6 +109,15 @@ export function DuplicatesPage() {
           />
         ))}
       </div>
+
+      <Pagination
+        className="border-t pt-3"
+        page={currentPage}
+        pageSize={PAGE_SIZE}
+        totalItems={groups.length}
+        onPageChange={setPage}
+        itemLabel="duplicate groups"
+      />
 
       <AlertDialog open={confirmAutoResolve} onOpenChange={setConfirmAutoResolve}>
         <AlertDialogContent>

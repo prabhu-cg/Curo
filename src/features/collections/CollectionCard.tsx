@@ -26,7 +26,7 @@ function CollectionIcon({
   type: CollectionWithCount['type'];
   rule: AutomaticCollectionRule | undefined;
 }) {
-  const className = 'size-4 text-[#555555]';
+  const className = 'size-4 text-muted-foreground';
   if (type === 'custom') return <Folder className={className} aria-hidden="true" />;
 
   switch (rule?.kind) {
@@ -63,7 +63,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
           void navigate(`/bookmarks?collection=${collection.id}`);
         }
       }}
-      className="focus-visible:ring-ring cursor-pointer transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:outline-none"
+      className="hover:ring-primary focus-visible:ring-ring cursor-pointer transition-shadow hover:shadow-md focus-visible:ring-2 focus-visible:outline-none"
     >
       <CardContent className="flex items-center gap-3">
         <div className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
@@ -71,7 +71,7 @@ export function CollectionCard({ collection, onEdit, onDelete }: CollectionCardP
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{collection.name}</p>
-          <p className="text-xs text-[#555555]">
+          <p className="text-xs text-muted-foreground">
             {collection.bookmarkCount} bookmark{collection.bookmarkCount === 1 ? '' : 's'}
           </p>
         </div>

@@ -31,7 +31,7 @@ export function HealthScoreCard({ health }: { health: HealthScoreBreakdown }) {
       <CardContent className="space-y-5">
         <div className="flex items-baseline gap-2">
           <span className="text-4xl font-semibold">{health.score}</span>
-          <span className="text-sm text-[#555555]">
+          <span className="text-sm text-muted-foreground">
             / 100 · {scoreLabel(health.score)}
           </span>
         </div>
@@ -41,10 +41,10 @@ export function HealthScoreCard({ health }: { health: HealthScoreBreakdown }) {
             <div key={factor.key}>
               <div className="mb-1 flex items-center justify-between text-xs">
                 <span className="font-medium">{factor.label}</span>
-                <span className="text-[#555555]">{factor.value}</span>
+                <span className="text-muted-foreground">{factor.value}</span>
               </div>
               <Progress value={factor.value} aria-label={factor.label} />
-              <p className="mt-1 text-xs text-[#555555]">{factor.description}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{factor.description}</p>
             </div>
           ))}
         </div>

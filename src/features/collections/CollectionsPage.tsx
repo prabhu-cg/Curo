@@ -40,7 +40,7 @@ export function CollectionsPage() {
     <div className="space-y-8">
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-[#555555] uppercase">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase">
             Your collections
           </h2>
           <Button
@@ -59,11 +59,6 @@ export function CollectionsPage() {
             icon={FolderKanban}
             title="No custom collections yet"
             description="Create a collection to group bookmarks around a topic, project, or goal."
-            action={
-              <Button onClick={() => setFormOpen(true)}>
-                <Plus /> New collection
-              </Button>
-            }
           />
         ) : (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -83,7 +78,7 @@ export function CollectionsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-[#555555] uppercase">
+        <h2 className="mb-3 text-sm font-semibold text-muted-foreground uppercase">
           Automatic collections
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   AlertTriangle,
@@ -9,8 +9,9 @@ import {
   Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { Pagination } from '@/components/shared/Pagination';
 import { useBookmarks, useCleanupReport, useFolders } from '@/hooks';
 import { addTagsToBookmarks, deleteBookmarks } from '@/services/bookmarkService';
 import {
@@ -41,6 +43,8 @@ const REASON_LABEL: Record<MissingMetadataReason, string> = {
   'no-favicon': 'No favicon',
   'no-tags': 'No tags',
 };
+
+const PAGE_SIZE = 25;
 
 export function CleanupPage() {
   const { bookmarks } = useBookmarks();
@@ -79,43 +83,50 @@ export function CleanupPage() {
   }
 
   return (
-    <Tabs defaultValue="metadata" className="mx-auto max-w-3xl">
-      <TabsList>
-        <TabsTrigger value="metadata">
-          Missing metadata
-          {report.missingMetadata.length > 0 && (
-            <Badge variant="secondary">{report.missingMetadata.length}</Badge>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="folders">
-          Folders
-          {report.emptyFolders.length + report.hierarchyIssues.length > 0 && (
-            <Badge variant="secondary">
-              {report.emptyFolders.length + report.hierarchyIssues.length}
-            </Badge>
-          )}
-        </TabsTrigger>
-        <TabsTrigger value="merges">
-          Merge suggestions
-          {report.folderMergeSuggestions.length > 0 && (
-            <Badge variant="secondary">{report.folderMergeSuggestions.length}</Badge>
-          )}
-        </TabsTrigger>
-      </TabsList>
+    <div className="mx-auto flex h-full max-w-3xl flex-col gap-4">
+      <p className="shrink-0 text-sm text-muted-foreground">
+        Curo scans your bookmarks for missing metadata, empty folders, and near-duplicate
+        folder names. Review each category below and fix what needs attention.
+      </p>
 
-      <TabsContent value="metadata" className="mt-4">
-        <MissingMetadataTab bookmarks={report.missingMetadata} />
-      </TabsContent>
+      <Tabs defaultValue="metadata" className="min-h-0 flex-1">
+        <TabsList>
+          <TabsTrigger value="metadata">
+            Missing metadata
+            {report.missingMetadata.length > 0 && (
+              <Badge variant="secondary">{report.missingMetadata.length}</Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="folders">
+            Folders
+            {report.emptyFolders.length + report.hierarchyIssues.length > 0 && (
+              <Badge variant="secondary">
+                {report.emptyFolders.length + report.hierarchyIssues.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="merges">
+            Merge suggestions
+            {report.folderMergeSuggestions.length > 0 && (
+              <Badge variant="secondary">{report.folderMergeSuggestions.length}</Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="folders" className="mt-4 space-y-4">
-        <EmptyFoldersCard folderIds={report.emptyFolders.map((f) => f.id)} />
-        <HierarchyIssuesCard issues={report.hierarchyIssues} />
-      </TabsContent>
+        <TabsContent value="metadata" className="mt-4 min-h-0 flex-1">
+          <MissingMetadataTab bookmarks={report.missingMetadata} />
+        </TabsContent>
 
-      <TabsContent value="merges" className="mt-4">
-        <MergeSuggestionsCard />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="folders" className="mt-4 min-h-0 flex-1 space-y-4 overflow-y-auto">
+          <EmptyFoldersCard folderIds={report.emptyFolders.map((f) => f.id)} />
+          <HierarchyIssuesCard issues={report.hierarchyIssues} />
+        </TabsContent>
+
+        <TabsContent value="merges" className="mt-4 min-h-0 flex-1 overflow-y-auto">
+          <MergeSuggestionsCard />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
 
@@ -130,12 +141,35 @@ function MissingMetadataTab({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [tagInput, setTagInput] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [page, setPage] = useState(1);
+
+  const pageCount = Math.max(1, Math.ceil(bookmarks.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedBookmarks = useMemo(
+    () => bookmarks.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [bookmarks, currentPage],
+  );
+
+  const pageIds = pagedBookmarks.map(({ bookmark }) => bookmark.id);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const somePageSelected = pageIds.some((id) => selected.has(id));
 
   function toggle(id: string, checked: boolean) {
     setSelected((prev) => {
       const next = new Set(prev);
       if (checked) next.add(id);
       else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAllOnPage(checked: boolean) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const id of pageIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
       return next;
     });
   }
@@ -170,11 +204,18 @@ function MissingMetadataTab({
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-sm">
-          {bookmarks.length} bookmark{bookmarks.length === 1 ? '' : 's'} need attention
-        </CardTitle>
+    <Card className="flex h-full flex-col">
+      <CardHeader className="flex shrink-0 flex-row items-center justify-between border-b">
+        <div className="flex items-center gap-3">
+          <Checkbox
+            aria-label="Select all on this page"
+            checked={allPageSelected ? true : somePageSelected ? 'indeterminate' : false}
+            onCheckedChange={(checked) => toggleAllOnPage(checked === true)}
+          />
+          <CardTitle className="text-sm font-semibold">
+            {bookmarks.length} bookmark{bookmarks.length === 1 ? '' : 's'} need attention
+          </CardTitle>
+        </div>
         {selected.size > 0 && (
           <div className="flex items-center gap-2">
             <Popover>
@@ -212,11 +253,14 @@ function MissingMetadataTab({
           </div>
         )}
       </CardHeader>
-      <CardContent className="space-y-1">
-        {bookmarks.map(({ bookmark, reasons }) => (
+      <CardContent className="divide-border min-h-0 flex-1 divide-y overflow-y-auto p-0">
+        {pagedBookmarks.map(({ bookmark, reasons }) => (
           <Label
             key={bookmark.id}
-            className="hover:bg-muted/50 flex items-start gap-3 rounded-md p-2 font-normal"
+            className={cn(
+              'hover:bg-muted/40 flex items-start gap-3 px-(--card-spacing) py-3 font-normal',
+              selected.has(bookmark.id) && 'bg-accent',
+            )}
           >
             <Checkbox
               checked={selected.has(bookmark.id)}
@@ -225,7 +269,7 @@ function MissingMetadataTab({
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{bookmark.title}</p>
-              <p className="truncate text-xs text-[#555555]">{bookmark.url}</p>
+              <p className="truncate text-xs text-muted-foreground">{bookmark.url}</p>
               <div className="mt-1 flex flex-wrap gap-1">
                 {reasons.map((reason) => (
                   <Badge key={reason} variant="secondary" className="text-xs">
@@ -237,6 +281,18 @@ function MissingMetadataTab({
           </Label>
         ))}
       </CardContent>
+
+      {pageCount > 1 && (
+        <CardFooter className="shrink-0">
+          <Pagination
+            page={currentPage}
+            pageSize={PAGE_SIZE}
+            totalItems={bookmarks.length}
+            onPageChange={setPage}
+            itemLabel="bookmarks"
+          />
+        </CardFooter>
+      )}
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <AlertDialogContent>
@@ -283,9 +339,9 @@ function EmptyFoldersCard({ folderIds }: { folderIds: string[] }) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-sm">
-          <FolderX className="mr-1.5 inline size-4" />
+      <CardHeader className="flex flex-row items-center justify-between border-b">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <FolderX className="size-4" />
           {emptyFolders.length} empty folder{emptyFolders.length === 1 ? '' : 's'}
         </CardTitle>
         {selected.size > 0 && (
@@ -296,14 +352,17 @@ function EmptyFoldersCard({ folderIds }: { folderIds: string[] }) {
       </CardHeader>
       {emptyFolders.length === 0 ? (
         <CardContent>
-          <p className="text-sm text-[#555555]">No empty folders found.</p>
+          <p className="text-sm text-muted-foreground">No empty folders found.</p>
         </CardContent>
       ) : (
-        <CardContent className="space-y-1">
+        <CardContent className="divide-border divide-y p-0">
           {emptyFolders.map((folder) => (
             <Label
               key={folder.id}
-              className="hover:bg-muted/50 flex items-center gap-3 rounded-md p-2 font-normal"
+              className={cn(
+                'hover:bg-muted/40 flex items-center gap-3 px-(--card-spacing) py-3 font-normal',
+                selected.has(folder.id) && 'bg-accent',
+              )}
             >
               <Checkbox
                 checked={selected.has(folder.id)}
@@ -346,15 +405,15 @@ function HierarchyIssuesCard({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm">
-          <AlertTriangle className="mr-1.5 inline size-4" />
+      <CardHeader className="border-b">
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <AlertTriangle className="size-4" />
           {issues.length} hierarchy issue{issues.length === 1 ? '' : 's'}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {issues.map((issue, i) => (
-          <p key={`${issue.folder.id}-${i}`} className="text-sm text-[#555555]">
+          <p key={`${issue.folder.id}-${i}`} className="text-sm text-muted-foreground">
             {issue.message}
           </p>
         ))}
@@ -394,7 +453,7 @@ function MergeSuggestionsCard() {
               <p className="text-sm font-medium">
                 {suggestion.folders.map((f) => f.path.at(-1)).join(' + ')}
               </p>
-              <p className="text-xs text-[#555555]">{suggestion.reason}</p>
+              <p className="text-xs text-muted-foreground">{suggestion.reason}</p>
             </div>
             <Button size="sm" onClick={() => void handleMerge(suggestion.id)}>
               <GitMerge /> Merge

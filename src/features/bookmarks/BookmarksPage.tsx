@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -7,8 +7,7 @@ import {
   type RowSelectionState,
   type SortingState,
 } from '@tanstack/react-table';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import { Bookmark as BookmarkIcon, Plus, SearchX } from 'lucide-react';
+import { Bookmark as BookmarkIcon, FilterX, Plus, SearchX } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { Pagination } from '@/components/shared/Pagination';
 import { useBookmarks, useBookmarkSearch, useCollections, useSettings } from '@/hooks';
 import { useUiStore } from '@/store/uiStore';
 import { getBookmarksForCollection } from '@/services/collectionService';
@@ -44,6 +44,8 @@ import type { Bookmark } from '@/types';
 const ROW_HEIGHT_COMFORTABLE = 60;
 const ROW_HEIGHT_COMPACT = 44;
 const ALL_VALUE = '__all__';
+const UNSORTED_VALUE = '__unsorted__';
+const PAGE_SIZE = 25;
 
 export function BookmarksPage() {
   const { bookmarks, isLoading } = useBookmarks();
@@ -58,26 +60,31 @@ export function BookmarksPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [domainFilter, setDomainFilter] = useState(ALL_VALUE);
+  /** Creates state kept in sync with a `?param=` query string value, so other pages
+   *  (e.g. Analytics) can deep-link into a pre-filtered bookmarks view. */
+  function useQuerySyncedFilter(param: string) {
+    const [value, setValueState] = useState(searchParams.get(param) ?? ALL_VALUE);
+    const setValue = (next: string) => {
+      setValueState(next);
+      setPage(1);
+      setSearchParams(
+        (prev) => {
+          const nextParams = new URLSearchParams(prev);
+          if (next === ALL_VALUE) nextParams.delete(param);
+          else nextParams.set(param, next);
+          return nextParams;
+        },
+        { replace: true },
+      );
+    };
+    return [value, setValue] as const;
+  }
+
+  const [page, setPage] = useState(1);
+  const [domainFilter, setDomainFilter] = useQuerySyncedFilter('domain');
   const [tagFilter, setTagFilter] = useState(ALL_VALUE);
-  const [collectionFilter, setCollectionFilterState] = useState(
-    searchParams.get('collection') ?? ALL_VALUE,
-  );
-  const setCollectionFilter = (value: string) => {
-    setCollectionFilterState(value);
-    setSearchParams(
-      (prev) => {
-        const next = new URLSearchParams(prev);
-        if (value === ALL_VALUE) {
-          next.delete('collection');
-        } else {
-          next.set('collection', value);
-        }
-        return next;
-      },
-      { replace: true },
-    );
-  };
+  const [folderFilter, setFolderFilter] = useQuerySyncedFilter('folder');
+  const [collectionFilter, setCollectionFilter] = useQuerySyncedFilter('collection');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: 'dateAdded', desc: true }]);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -91,6 +98,17 @@ export function BookmarksPage() {
   );
   const tags = useMemo(
     () => Array.from(new Set(bookmarks.flatMap((b) => b.tags))).sort(),
+    [bookmarks],
+  );
+  const folders = useMemo(
+    () =>
+      Array.from(
+        new Set(bookmarks.map((b) => b.folderPath.join(' / ')).filter(Boolean)),
+      ).sort(),
+    [bookmarks],
+  );
+  const hasUnsortedBookmarks = useMemo(
+    () => bookmarks.some((b) => b.folderPath.length === 0),
     [bookmarks],
   );
 
@@ -107,11 +125,18 @@ export function BookmarksPage() {
     return baseRows.filter((b) => {
       if (domainFilter !== ALL_VALUE && b.domain !== domainFilter) return false;
       if (tagFilter !== ALL_VALUE && !b.tags.includes(tagFilter)) return false;
+      if (folderFilter === UNSORTED_VALUE && b.folderPath.length > 0) return false;
+      if (
+        folderFilter !== ALL_VALUE &&
+        folderFilter !== UNSORTED_VALUE &&
+        b.folderPath.join(' / ') !== folderFilter
+      )
+        return false;
       if (favoritesOnly && !b.isFavorite) return false;
       if (collectionMemberIds && !collectionMemberIds.has(b.id)) return false;
       return true;
     });
-  }, [baseRows, domainFilter, tagFilter, favoritesOnly, collectionMemberIds]);
+  }, [baseRows, domainFilter, tagFilter, folderFilter, favoritesOnly, collectionMemberIds]);
 
   const columns = useMemo(
     () =>
@@ -141,15 +166,26 @@ export function BookmarksPage() {
   });
 
   const rows = table.getRowModel().rows;
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const virtualizer = useVirtualizer({
-    count: rows.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => rowHeight,
-    overscan: 12,
-  });
+  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
+
+  const hasActiveFilters =
+    domainFilter !== ALL_VALUE ||
+    tagFilter !== ALL_VALUE ||
+    folderFilter !== ALL_VALUE ||
+    collectionFilter !== ALL_VALUE ||
+    favoritesOnly;
+
+  function handleClearFilters() {
+    setDomainFilter(ALL_VALUE);
+    setTagFilter(ALL_VALUE);
+    setFolderFilter(ALL_VALUE);
+    setCollectionFilter(ALL_VALUE);
+    setFavoritesOnly(false);
+  }
 
   async function handleConfirmDelete() {
     if (!deletingBookmark) return;
@@ -180,6 +216,12 @@ export function BookmarksPage() {
 
   return (
     <div className="flex h-full flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        {filteredRows.length === bookmarks.length
+          ? `${bookmarks.length} bookmark${bookmarks.length === 1 ? '' : 's'}`
+          : `${filteredRows.length} of ${bookmarks.length} bookmarks`}
+      </p>
+
       <div className="flex flex-wrap items-center gap-3">
         <Select value={domainFilter} onValueChange={setDomainFilter}>
           <SelectTrigger className="w-40" aria-label="Filter by domain">
@@ -195,7 +237,13 @@ export function BookmarksPage() {
           </SelectContent>
         </Select>
 
-        <Select value={tagFilter} onValueChange={setTagFilter}>
+        <Select
+          value={tagFilter}
+          onValueChange={(value) => {
+            setTagFilter(value);
+            setPage(1);
+          }}
+        >
           <SelectTrigger className="w-36" aria-label="Filter by tag">
             <SelectValue placeholder="Tag" />
           </SelectTrigger>
@@ -204,6 +252,23 @@ export function BookmarksPage() {
             {tags.map((tag) => (
               <SelectItem key={tag} value={tag}>
                 {tag}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={folderFilter} onValueChange={setFolderFilter}>
+          <SelectTrigger className="w-40" aria-label="Filter by folder">
+            <SelectValue placeholder="Folder" />
+          </SelectTrigger>
+          <SelectContent className="min-w-[22rem] max-w-[28rem]">
+            <SelectItem value={ALL_VALUE}>All folders</SelectItem>
+            {hasUnsortedBookmarks && (
+              <SelectItem value={UNSORTED_VALUE}>Unsorted (no folder)</SelectItem>
+            )}
+            {folders.map((folder) => (
+              <SelectItem key={folder} value={folder} className="whitespace-normal">
+                {folder}
               </SelectItem>
             ))}
           </SelectContent>
@@ -227,12 +292,21 @@ export function BookmarksPage() {
           <Switch
             id="favorites-only"
             checked={favoritesOnly}
-            onCheckedChange={setFavoritesOnly}
+            onCheckedChange={(checked) => {
+              setFavoritesOnly(checked);
+              setPage(1);
+            }}
           />
           <Label htmlFor="favorites-only" className="text-sm font-normal">
             Favorites only
           </Label>
         </div>
+
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+            <FilterX /> Clear filters
+          </Button>
+        )}
 
         <Button className="ml-auto" onClick={() => setFormOpen(true)}>
           <Plus /> Add bookmark
@@ -255,7 +329,7 @@ export function BookmarksPage() {
         />
       ) : (
         <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-lg border">
-          <div className="bg-muted/50 flex shrink-0 border-b text-xs font-medium text-[#555555]">
+          <div className="bg-muted/50 flex shrink-0 border-b text-xs font-medium text-muted-foreground">
             {table.getHeaderGroups()[0]?.headers.map((header) => {
               const label = (
                 <>
@@ -292,44 +366,46 @@ export function BookmarksPage() {
             })}
           </div>
 
-          <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto">
-            <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
-              {virtualizer.getVirtualItems().map((virtualRow) => {
-                const row = rows[virtualRow.index];
-                if (!row) return null;
-                return (
-                  <div
-                    key={row.id}
-                    role="row"
-                    data-state={row.getIsSelected() ? 'selected' : undefined}
-                    className="hover:bg-muted/40 data-[state=selected]:bg-accent absolute top-0 left-0 flex w-full items-center border-b"
-                    style={{
-                      height: virtualRow.size,
-                      transform: `translateY(${virtualRow.start}px)`,
-                    }}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const isFlexColumn =
-                        cell.column.id === 'title' || cell.column.id === 'tags';
-                      const sizingClass = isFlexColumn ? 'min-w-0 flex-1' : 'shrink-0';
-                      const alignClass =
-                        cell.column.id === 'actions' ? 'flex justify-center px-2' : 'px-3';
+          <div className="min-h-0 flex-1 overflow-auto">
+            {pagedRows.map((row) => (
+              <div
+                key={row.id}
+                role="row"
+                data-state={row.getIsSelected() ? 'selected' : undefined}
+                className="hover:bg-muted/40 data-[state=selected]:bg-accent flex w-full items-center border-b"
+                style={{ height: rowHeight }}
+              >
+                {row.getVisibleCells().map((cell) => {
+                  const isFlexColumn =
+                    cell.column.id === 'title' || cell.column.id === 'tags';
+                  const sizingClass = isFlexColumn ? 'min-w-0 flex-1' : 'shrink-0';
+                  const alignClass =
+                    cell.column.id === 'actions' ? 'flex justify-center px-2' : 'px-3';
 
-                      return (
-                        <div
-                          key={cell.id}
-                          role="cell"
-                          style={{ width: isFlexColumn ? undefined : cell.column.getSize() }}
-                          className={`${sizingClass} ${alignClass}`}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
+                  return (
+                    <div
+                      key={cell.id}
+                      role="cell"
+                      style={{ width: isFlexColumn ? undefined : cell.column.getSize() }}
+                      className={`${sizingClass} ${alignClass}`}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
+          <div className="shrink-0 px-3 pb-2">
+            <Pagination
+              className="border-t pt-3"
+              page={currentPage}
+              pageSize={PAGE_SIZE}
+              totalItems={rows.length}
+              onPageChange={setPage}
+              itemLabel="bookmarks"
+            />
           </div>
         </div>
       )}

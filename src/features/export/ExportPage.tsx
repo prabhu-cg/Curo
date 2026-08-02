@@ -114,7 +114,7 @@ export function ExportPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Export bookmarks</h2>
-        <p className="text-sm text-[#555555]">
+        <p className="text-sm text-muted-foreground">
           Take your bookmarks with you in any format, any time.
         </p>
       </div>
@@ -175,7 +175,7 @@ export function ExportPage() {
               />
               <span>
                 <span className="block text-sm font-medium">{option.label}</span>
-                <span className="block text-xs text-[#555555]">{option.description}</span>
+                <span className="block text-xs text-muted-foreground">{option.description}</span>
               </span>
             </Label>
           ))}

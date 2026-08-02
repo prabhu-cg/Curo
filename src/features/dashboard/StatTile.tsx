@@ -12,11 +12,11 @@ export function StatTile({ icon: Icon, label, value }: StatTileProps) {
     <Card>
       <CardContent className="flex items-center gap-3">
         <div className="bg-muted flex size-10 shrink-0 items-center justify-center rounded-md">
-          <Icon className="size-5 text-[#555555]" aria-hidden="true" />
+          <Icon className="size-5 text-muted-foreground" aria-hidden="true" />
         </div>
         <div>
           <p className="text-2xl font-semibold">{value}</p>
-          <p className="text-xs text-[#555555]">{label}</p>
+          <p className="text-xs text-muted-foreground">{label}</p>
         </div>
       </CardContent>
     </Card>

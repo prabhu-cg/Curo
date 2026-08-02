@@ -78,19 +78,19 @@ export function BulkActionsBar({
   }
 
   return (
-    <div className="bg-foreground text-background flex flex-wrap items-center gap-2 rounded-lg px-4 py-2.5 text-sm">
+    <div className="bg-accent text-accent-foreground border-primary/20 flex flex-wrap items-center gap-2 rounded-lg border px-4 py-2.5 text-sm">
       <span className="font-medium">{selectedIds.length} selected</span>
       <div className="ml-auto flex flex-wrap items-center gap-1.5">
-        <Button variant="secondary" size="sm" onClick={() => void handleFavorite(true)}>
+        <Button variant="outline" size="sm" onClick={() => void handleFavorite(true)}>
           <Star /> Favorite
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => void handleFavorite(false)}>
+        <Button variant="outline" size="sm" onClick={() => void handleFavorite(false)}>
           <StarOff /> Unfavorite
         </Button>
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="secondary" size="sm">
+            <Button variant="outline" size="sm">
               <Tag /> Add tag
             </Button>
           </PopoverTrigger>
@@ -116,7 +116,7 @@ export function BulkActionsBar({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm">
+            <Button variant="outline" size="sm">
               <FolderPlus /> Add to collection
             </Button>
           </DropdownMenuTrigger>
@@ -135,7 +135,7 @@ export function BulkActionsBar({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="secondary" size="sm" onClick={() => setConfirmDeleteOpen(true)}>
+        <Button variant="outline" size="sm" onClick={() => setConfirmDeleteOpen(true)}>
           <Trash2 /> Delete
         </Button>
 

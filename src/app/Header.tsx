@@ -11,6 +11,7 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { MOD_KEY_LABEL } from '@/lib/platform';
 import { useUiStore } from '@/store/uiStore';
 import { Sidebar } from './Sidebar';
 
@@ -77,14 +78,14 @@ export function Header() {
           />
           <InputGroupAddon align="inline-end">
             <kbd className="border-border bg-sidebar text-muted-foreground pointer-events-none hidden items-center rounded border px-1.5 py-0.5 font-mono text-[11px] sm:inline-flex">
-              /
+              {MOD_KEY_LABEL}K
             </kbd>
           </InputGroupAddon>
         </InputGroup>
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-3">
-        <span className="hidden items-center gap-1.5 text-xs text-[#555555] sm:flex">
+        <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
           <CircleCheck className="size-3.5 text-[#2a6f6f]" aria-hidden="true" />
           All changes saved locally
         </span>
@@ -109,7 +110,7 @@ export function Header() {
                       'focus-visible:ring-ring flex size-7 items-center justify-center rounded-md transition-colors focus-visible:ring-2 focus-visible:outline-none',
                       isActive
                         ? 'bg-background text-foreground shadow-sm'
-                        : 'text-[#555555] hover:text-foreground',
+                        : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
                     <option.icon className="size-4" aria-hidden="true" />

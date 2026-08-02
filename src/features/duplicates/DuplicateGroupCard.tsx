@@ -34,7 +34,7 @@ export function DuplicateGroupCard({
             </>
           )}
         </Badge>
-        <span className="text-xs text-[#555555]">{group.bookmarks.length} bookmarks</span>
+        <span className="text-xs text-muted-foreground">{group.bookmarks.length} bookmarks</span>
       </CardHeader>
       <CardContent className="space-y-4">
         <RadioGroup value={canonicalId} onValueChange={setCanonicalId}>
@@ -50,11 +50,17 @@ export function DuplicateGroupCard({
                 className="mt-0.5"
               />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{bookmark.title}</p>
-                <p className="truncate text-xs text-[#555555]">{bookmark.url}</p>
-                <div className="mt-1 flex flex-wrap gap-2 text-xs text-[#555555]">
+                <p className="line-clamp-2 text-sm font-medium break-words" title={bookmark.title}>
+                  {bookmark.title}
+                </p>
+                <p className="truncate text-xs text-muted-foreground" title={bookmark.url}>
+                  {bookmark.url}
+                </p>
+                <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {bookmark.folderPath.length > 0 && (
-                    <span>{bookmark.folderPath.join(' / ')}</span>
+                    <span className="max-w-full truncate" title={bookmark.folderPath.join(' / ')}>
+                      {bookmark.folderPath.join(' / ')}
+                    </span>
                   )}
                   {bookmark.tags.length > 0 && <span>{bookmark.tags.join(', ')}</span>}
                   <span>{new Date(bookmark.dateAdded).toLocaleDateString()}</span>

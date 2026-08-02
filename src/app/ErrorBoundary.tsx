@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <AlertTriangle className="text-destructive size-10" aria-hidden="true" />
         <div className="space-y-1">
           <h1 className="text-lg font-semibold">Something went wrong</h1>
-          <p className="max-w-md text-sm text-[#555555]">
+          <p className="max-w-md text-sm text-muted-foreground">
             Curo hit an unexpected error. Your bookmarks are safe in local storage.
             Reloading usually fixes this.
           </p>

@@ -2,6 +2,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { Star } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { BookmarkRowActions } from './BookmarkRowActions';
 import type { Bookmark } from '@/types';
@@ -52,7 +53,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
           }
           aria-pressed={row.original.isFavorite}
           onClick={() => handlers.onToggleFavorite(row.original)}
-          className="text-[#555555] hover:text-primary focus-visible:ring-ring rounded p-1 focus-visible:ring-2 focus-visible:outline-none"
+          className="text-muted-foreground hover:text-primary focus-visible:ring-ring rounded p-1 focus-visible:ring-2 focus-visible:outline-none"
         >
           <Star
             className={cn(
@@ -76,19 +77,28 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
           >
             {row.original.title}
           </a>
-          <p className="truncate text-xs text-[#555555]">{row.original.domain}</p>
+          <p className="truncate text-xs text-muted-foreground">{row.original.domain}</p>
         </div>
       ),
     }),
     columnHelper.accessor((row) => row.folderPath.join(' / '), {
       id: 'folder',
       header: 'Folder',
-      size: 140,
-      cell: ({ row }) => (
-        <span className="text-sm text-[#555555]">
-          {row.original.folderPath.join(' / ') || '—'}
-        </span>
-      ),
+      size: 260,
+      cell: ({ row }) => {
+        const path = row.original.folderPath.join(' / ');
+        if (!path) return <span className="text-sm text-muted-foreground">—</span>;
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="block truncate text-sm text-muted-foreground">{path}</span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              {path}
+            </TooltipContent>
+          </Tooltip>
+        );
+      },
     }),
     columnHelper.accessor('tags', {
       id: 'tags',
@@ -96,7 +106,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
       enableSorting: false,
       cell: ({ row }) => {
         const tags = row.original.tags;
-        if (tags.length === 0) return <span className="text-[#555555]">—</span>;
+        if (tags.length === 0) return <span className="text-muted-foreground">—</span>;
         return (
           <div className="flex flex-wrap gap-1">
             {tags.map((tag) => (
@@ -113,7 +123,7 @@ export function createBookmarkColumns(handlers: ColumnHandlers) {
       header: 'Added',
       size: 110,
       cell: ({ row }) => (
-        <span className="text-sm text-[#555555]">
+        <span className="text-sm text-muted-foreground">
           {new Date(row.original.dateAdded).toLocaleDateString()}
         </span>
       ),

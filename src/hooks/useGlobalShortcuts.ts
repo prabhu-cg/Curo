@@ -1,13 +1,7 @@
 import { useEffect } from 'react';
 import { useSettings } from './useSettings';
 
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  const tag = target.tagName;
-  return tag === 'INPUT' || tag === 'TEXTAREA' || target.isContentEditable;
-}
-
-/** Global "/" shortcut to jump to search, gated by the user's preference. */
+/** Global Cmd/Ctrl+K shortcut to jump to search, gated by the user's preference. */
 export function useGlobalShortcuts(): void {
   const { settings } = useSettings();
 
@@ -15,11 +9,16 @@ export function useGlobalShortcuts(): void {
     if (!settings.keyboardShortcutsEnabled) return;
 
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
-      if (isEditableTarget(event.target)) return;
+      const isSearchShortcut =
+        event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey);
+      if (!isSearchShortcut) return;
 
+      // Unlike a plain "/" shortcut, Cmd/Ctrl+K isn't a printable character, so it's
+      // safe (and expected) to fire even while another field has focus.
       event.preventDefault();
-      document.getElementById('global-search')?.focus();
+      const input = document.getElementById('global-search');
+      if (input instanceof HTMLInputElement) input.select();
+      else input?.focus();
     }
 
     document.addEventListener('keydown', handleKeyDown);
