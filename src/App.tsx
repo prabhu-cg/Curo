@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { getSettings } from '@/services/settingsService';
 import { AppShell } from '@/app/AppShell';
 import { ErrorBoundary } from '@/app/ErrorBoundary';
+import { NotFoundPage } from '@/app/NotFoundPage';
 
 const DashboardPage = lazy(() =>
   import('@/features/dashboard/DashboardPage').then((m) => ({
@@ -92,6 +93,7 @@ function App() {
                 <Route path="export" element={<ImportExportPage />} />
                 <Route path="settings" element={<SettingsPage />} />
               </Route>
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
         </BrowserRouter>
